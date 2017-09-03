@@ -1,0 +1,5 @@
+*.db
+*.pyc
+vagrantfile
+_pycache_/
+.vagrant/
