@@ -3,3 +3,4 @@
 vagrantfile
 _pycache_/
 .vagrant/
+client_secrets.json
