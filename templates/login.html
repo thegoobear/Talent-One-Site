@@ -5,48 +5,8 @@
 <title>Talent One</title>
 
 <script type="text/javascript" src='http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js'></script>
+<script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
 <script type="text/javascript" src="{{ url_for('static', filename='tabs.js' ) }}"></script>
-<script>
-function validateForm() {
-    var x = document.forms["login"]["username"].value;
-    var y = document.forms["login"]["password"].value;
-    if (x == "") {
-        alert("Username must be filled out");
-        return false;
-    }
-    if (y == "") {
-        alert("Password must be filled out");
-        return false;
-    }
-}
-
-function validateForm2() {
-    var x = document.forms["login2"]["username"].value;
-    var y = document.forms["login2"]["password"].value;
-    var z = document.forms["login2"]["password2"].value;
-    var a = document.forms["login2"]["email"].value;
-    if (x == "") {
-        alert("Username must be filled out");
-        return false;
-    }
-    if (y == "") {
-        alert("Password must be filled out");
-        return false;
-    }
-    if (z == "") {
-        alert("Password confirm must be filled out");
-        return false;
-    }
-    if (a == "") {
-        alert("Email must be filled out");
-        return false;
-    }
-    if (z!=y){
-        alert("Passwords must match");
-        return false;
-    }
-}
-</script>
 
 <link rel="stylesheet" type=text/css href="{{ url_for('static', filename='talentonelogin.css' ) }}">
 <link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700" rel="stylesheet">
@@ -59,6 +19,27 @@ function validateForm2() {
 </head>
 
 <body>
+
+
+<script>
+    window.fbAsyncInit = function() {
+      FB.init({
+        appId      : '132132974078401',
+        cookie     : true,
+        xfbml      : true,
+        version    : 'v2.10'
+      });
+      FB.AppEvents.logPageView();
+    };
+
+    (function(d, s, id){
+       var js, fjs = d.getElementsByTagName(s)[0];
+       if (d.getElementById(id)) {return;}
+       js = d.createElement(s); js.id = id;
+       js.src = "//connect.facebook.net/en_US/sdk.js";
+       fjs.parentNode.insertBefore(js, fjs);
+     }(document, 'script', 'facebook-jssdk'));
+</script>
 
 <div id="wrapper">
 
@@ -91,13 +72,109 @@ function validateForm2() {
 
     	<div id="tab-1" class="tab-content current">
         <form name="login" action="{{url_for('loginpage')}}" onsubmit="return validateForm()" method='post'>
-        Username:
-        <input type='text' size='40' name='username'>
+        Email:
+        <input type='text' size='40' name='email'>
         Password:
         <input type='text' size='40' name='password'>
         <br><input type='submit' value='Login'>
         </form>
-    	</div>
+
+<script>
+        FB.getLoginStatus(function(response) {
+    statusChangeCallback(response);
+});
+</script>
+
+      <div class="fb-login-button" data-width="200" data-max-rows="1" data-size="medium"
+       data-button-type="login_with" data-show-faces="false" data-auto-logout-link="false"
+        data-use-continue-as="true" scope="public_profile,email"
+        onlogin="sendTokenToServer();"></div>
+
+
+        <!-- GOOGLE PLUS SIGN IN-->
+
+
+          <div id="signInButton">
+          <span class="g-signin"
+            data-scope="openid email"
+            data-clientid="80359237291-vcdjnik15ji3699n6kl44am6mi86fkf3.apps.googleusercontent.com"
+            data-redirecturi="postmessage"
+            data-accesstype="offline"
+            data-cookiepolicy="single_host_origin"
+            data-callback="signInCallback"
+            data-approvalprompt="force">
+          </span>
+        </div>
+
+        <div id="result"></div>
+
+        <script>
+        function signInCallback(authResult) {
+          if (authResult['code']) {
+            // Hide the sign-in button now that the user is authorized
+            $('#signinButton').attr('style', 'display: none');
+            // Send the one-time-use code to the server, if the server responds, write a 'login successful' message to the web page and then redirect back to the main restaurants page
+            $.ajax({
+              type: 'POST',
+              url: '/gconnect?state={{STATE}}',
+              processData: false,
+              data: authResult['code'],
+              contentType: 'application/octet-stream; charset=utf-8',
+              success: function(result) {
+                // Handle or verify the server response if necessary.
+                if (result) {
+                  $('#result').html('Login Successful!</br>'+ result + '</br>Redirecting...')
+                 setTimeout(function() {
+                  window.location.href = "/index";
+                }, 100);
+
+              } else if (authResult['error']) {
+            console.log('There was an error: ' + authResult['error']);
+          } else {
+                $('#result').html('Failed to make a server-side call. Check your configuration and console.');
+                 }
+              }
+
+          }); } }
+          </script>
+
+          <!--FACEBOOK SIGN IN -->
+<script>
+
+  // Here we run a very simple test of the Graph API after login is
+  // successful.  See statusChangeCallback() for when this call is made.
+  function sendTokenToServer() {
+    var access_token = FB.getAuthResponse()['accessToken'];
+    console.log(access_token)
+    console.log('Welcome!  Fetching your information.... ');
+    FB.api('/me', function(response) {
+      console.log('Successful login for: ' + response.name);
+     $.ajax({
+      type: 'POST',
+      url: '/fbconnect?state={{STATE}}',
+      processData: false,
+      data: access_token,
+      contentType: 'application/octet-stream; charset=utf-8',
+      success: function(result) {
+        // Handle or verify the server response if necessary.
+        if (result) {
+          //$('#result').html('<div>Login Successful!</br>'+ result + '</br>Redirecting...</div>')
+         setTimeout(function() {
+          window.location.href = "/index";
+        }, 100);
+
+      } else {
+        $('#result').html('Failed to make a server-side call. Check your configuration and console.');
+         }
+      }
+
+  });
+    });
+  }
+</script>
+
+      </div>
+
     	<div id="tab-2" class="tab-content">
         <form name="login2" action="{{url_for('newuser')}}" onsubmit="return validateForm2()" method='post'>
         Username:
@@ -108,6 +185,7 @@ function validateForm2() {
         <input type='text' size='40' name='password'>
         Confirm Password:
         <input type='text' size='40' name='password2'>
+        <input name='STATE' type='hidden' value='{{STATE}}'>
         <br><input type='submit' value='Create'>
         </form>
     	</div>

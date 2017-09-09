@@ -23,7 +23,7 @@ class User(Base):
     
     id = Column(Integer, primary_key=True)
     username = Column(String(80), nullable=False, index = True)
-    password = Column(String(80), nullable=False)
+    password = Column(String(80))
     email = Column(String(80))
     paid = Column(Boolean)
     

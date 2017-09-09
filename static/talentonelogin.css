@@ -82,7 +82,7 @@ margin-left: 30px;
 }
 
 .loginwrapper{
-			width: 500px;
+			width: 365px;
       font-family: 'Open Sans Condensed', sans-serif;
       font-weight: 700;
 			margin-left: auto;
@@ -110,10 +110,22 @@ ul.tabs{
 
   .tab-content{
     display: none;
+    min-height:200px;
     background: #ededed;
     padding: 15px;
   }
 
   .tab-content.current{
     display: inherit;
+  }
+
+  #signInButton {
+    margin-top:10px;
+    float:left;
+  }
+
+  .fb-login-button {
+    float:left;
+    margin-right: 15px;
+    margin-top:11px;
   }
