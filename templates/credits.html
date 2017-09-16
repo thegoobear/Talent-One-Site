@@ -22,27 +22,39 @@
 
     <div class="headercontainer">
       <div class="logobox">
-        <img class="logo" alt="logo" src="{{ url_for('static', filename='img/T1logo2.png' ) }}">
+        <a href="{{url_for ('homepage')}}"><img class="logo" alt="logo" src="{{ url_for('static', filename='img/T1logo2.png' ) }}"></a>
       </div>
       <div class="navigation">
         <ul>
           <li title="TALENT"><a href="{{url_for ('talentpage')}}">TALENT</a></li>
           <li title="ABOUT US"><a href="{{url_for ('aboutpage')}}">ABOUT US</a></li>
-          <li title="RECENT CREDITS"><a href="{{url_for ('creditspage')}}">RECENT CREDITS</a></li>
+          <li title="CREDITS"><a href="{{url_for ('creditspage')}}">CREDITS</a></li>
+          {% if not user %}
           <li title="SUBMISSIONS"><a href="{{url_for ('submissionpage')}}">SUBMISSIONS</a></li>
+          {% endif %}
           <li title="CONTACT US"><a href="{{url_for ('contactpage')}}">CONTACT US</a></li>
+          {% if not user %}
           <li title="LOGIN"><a href="{{url_for ('loginpage')}}">LOGIN</a></li>
+          {%endif%}
+          {% if user %}
+          <li title="MY PROFILE"><a href="{{url_for ('profilepage', profile_id = user.id)}}">MY PROFILE</a></li>
+          {% endif %}
+          {% if user %}
+          <li title="MY ACCOUNT"><a href="{{url_for ('accountpage', profile_id = user.id)}}">MY ACCOUNT</a></li>
+          {% endif %}
+          {% if user %}
+          <li title="LOG OUT"><a href="{{url_for ('gdisconnect')}}">LOG OUT</a></li>
+          {% endif %}
         </ul>
       </div>
     </div>
 
-  </header>
+  <h2 class = "creditheader">A FEW PROJECTS WE'VE WORKED ON</h2>
 
-  <div class="bannerphotos">
-    {% for pic in piclist %}
-    <div class="crop">
-    <img class="grayscale" alt="headshot" src="{{ url_for('static', filename='img/' + pic.path ) }}">
-    </div>
+  </header>
+  <div class="posterwrapper">
+    {% for poster in posters %}
+    <img class="poster" alt="poster" src="{{ url_for('static', filename='img/posters/' + poster ) }}">
     {% endfor %}
   </div>
 

@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Jun 23 17:16:44 2017
 
-Makes a list of Movie objects and passes fresh_tomatoes to create a page
+"""
+Latest Revision 9/15/17
+
+A web page/app for a talent agency allowing clients to manage profiles
 
 @author: Tripp
 """
 
 from flask import Flask, render_template, flash, request, abort, session as login_session, redirect, url_for, jsonify, send_from_directory
+from flask_uploads import UploadSet, IMAGES, configure_uploads, patch_request_class
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Actor, Photo, Credit, User
@@ -21,10 +23,13 @@ import httplib2
 import json
 from flask import make_response
 import requests
+from os import walk
 
+#Pull in the client secret key for Google Sign In
 CLIENT_ID = json.loads(
     open('client_secrets.json', 'r').read())['web']['client_id']
 
+#Connect to SQL database
 engine = create_engine('sqlite:///talentone.db')
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind = engine)
@@ -32,44 +37,75 @@ session = DBSession()
 
 app = Flask(__name__)
 
+#Set the destination for user photo uploads
+app.config['UPLOADED_PHOTOS_DEST'] = 'static/img'
+
+photos = UploadSet('photos', IMAGES)
+configure_uploads(app, (photos))
+patch_request_class(app)
+
 @app.route('/')
 @app.route('/index')
 def homepage():
-     
+    
+    #Get the number of photos that aren't placeholders
     rowCount = int(session.query(Photo).filter(Photo.path != 'nophoto.jpg').count())
     
+    #The number of photos to display in the homepage banner
     number_of_pics = 3
     
+    #Populate the list of pictures to display
     bannerpics = bannerpicfill(number_of_pics, rowCount)
     
+    #Removes duplicates and photos in landscape orientation
     bannerpics = removeBadPics(bannerpics, rowCount, number_of_pics)
-    
+
 
     if 'username' in login_session:
         user = session.query(User).filter_by(username = login_session['username']).first()
         return render_template("index.html", piclist = bannerpics, user = user)
     else:
         return render_template("index.html", piclist = bannerpics, user = None)
-    
+
 def removeBadPics(bannerpics, rowCount, number_of_pics):
     
-    if number_of_pics > rowCount:
-        
+    bannerpics2 = []
+
+    #If the number of photos in the database is less than or equal to the
+    #number needed for display, just remove landscape photos
+    if number_of_pics >= rowCount:
+
         for idx, pic in enumerate(bannerpics):
-            
-            im = Image.open("static/img/" + pic.path)
+
+            im = Image.open("static/img/uploads/" + pic.path)
             picsize = im.size
             
-            if (picsize[0]>picsize[1]):
-                del bannerpics[idx]
+            print (pic.path)
+
+            if (picsize[0]<picsize[1]):
+                bannerpics2.append(bannerpics[idx])
+                
+            im.close()
+            
+        bannerpics = bannerpics2[:]
     
+        return bannerpics
+    
+    #If there are more photos in the DB than will be displayed, we must
+    #replace duplicates as well as remove landscape photos. This for loop
+    #provides an index for the current iteration's photo
     for idx, pic in enumerate(bannerpics):
-        
+
+        #Replace the photo until there are no duplicates
         while True:
-            im = Image.open("static/img/" + pic.path)
+            
+            im = Image.open("static/img/uploads/" + pic.path)
             picsize = im.size
             
+            #If width is greater than height or a duplicate is present in the
+            #list
             if (picsize[0] > picsize[1] or bannerpics.count(pic)>1):
+                #print(pic.path)
                 temppic = session.query(Photo).filter(Photo.path != 'nophoto.jpg', Photo.path != pic.path).offset(int(rowCount*random.random())).first()
                 if temppic and temppic not in bannerpics:
                     bannerpics[idx]=temppic
@@ -78,95 +114,117 @@ def removeBadPics(bannerpics, rowCount, number_of_pics):
             else:
                 im.close()
                 break
-    
+
     return bannerpics
 
 def bannerpicfill(count, rowCount):
-    
+
     bannerpics=[]
-    
-    if count > rowCount:
-        
+
+    #If the number of available photos is less than or equal to the number
+    #for display, simply populate list will all of them after randomizing
+    #print(count, rowCount)
+    if count >= rowCount:
+
         temppic = session.query(Photo).filter(Photo.path != 'nophoto.jpg').all()
 
+        random.shuffle(temppic)
+        #print('poo')
         return temppic
     
-    for x in range(0,count):
-        
-        
-        temppic = session.query(Photo).filter(Photo.path != 'nophoto.jpg').offset(int(rowCount*random.random())).first()
+    #If there are more photos in the DB than will be displayed, pick photos
+    #randomly to populate the list. Do not count loops storing duplicates
+    x=0
     
+    while x < count:
+
+        temppic = session.query(Photo).filter(Photo.path != 'nophoto.jpg').offset(int(rowCount*random.random())).first()
+
+    #Only add photo to list if there is no duplicate
         if temppic not in bannerpics:
             bannerpics.append(temppic)
-        else:
-            x-=1
-            
-            
+            x+= 1
+        
     return bannerpics
-    
+
 @app.route('/about')
 def aboutpage():
     rowCount = int(session.query(Photo).count())
     bannerpics = session.query(Photo).offset(int(rowCount*random.random())).limit(6).all()
     return render_template("index.html", piclist = bannerpics)
-    
+
 @app.route('/contact')
 def contactpage():
     return "Contact"
-    
+
 @app.route('/credits')
 def creditspage():
-    rowCount = int(session.query(Photo).count())
-    bannerpics = session.query(Photo).offset(int(rowCount*random.random())).limit(6).all()
-    return render_template("index.html", piclist = bannerpics)
-    
+
+    posters = []
+
+    for (dirpath, dirnames, filenames) in walk('static/img/posters'):
+        posters.extend(filenames)
+        break
+
+    for poster in posters:
+        if poster[-3:-1] != 'jpg':
+            posters.remove(poster)
+
+    random.shuffle(posters)
+
+    if 'username' in login_session:
+        user = session.query(User).filter_by(username = login_session['username']).first()  
+        return render_template("credits.html", posters = posters, user = user)
+
+    return render_template("credits.html", posters = posters)
+
 @app.route('/login', methods = ['GET', 'POST'])
 def loginpage():
-    
+
     if request.method == 'GET':
-        
+
         state = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
         login_session['state'] = state
-    
+
         return render_template("login.html", STATE = state)
-    
+
     if request.method == 'POST':
-        
+
         email = request.form['email']
         password = request.form['password']
         dbuser = session.query(User).filter_by(email = email).first()
-          
+
         if dbuser:
             if dbuser.verify_password(password):
                 login_session['username'] = dbuser.username
                 login_session['id'] = dbuser.id
                 login_session['email']=dbuser.email
                 return homepage()
-            
+
 
 @app.route('/login/newuser', methods = ['POST'])
 def newuser():
-    
+
     state = request.form['STATE']
-    
+
     newuser = User(username = request.form['username'], email = request.form['email'])
     newactor = Actor(user = newuser)
     newphoto = Photo(user = newuser, path="nophoto.jpg")
     newcredit = Credit(user = newuser)
     newuser.hash_password(request.form['password'])
-    
+
     if session.query(User).filter_by(username = newuser.username).first() is not None:
         abort(400)
-        
+
     if login_session['state'] != state:
         abort(400)
-        
+
     session.add(newuser)
     session.add(newactor)
     session.add(newphoto)
     session.add(newcredit)
     session.commit()
-    
+
     return homepage()
 
 @app.route('/fbconnect', methods = ['POST'])
@@ -176,40 +234,40 @@ def fbconnect():
         response = make_response(json.dumps('Invalid state parameter.'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
-    
+
     # Obtain authorization code
     code = request.data
-    
+
     print(code)
-    
+
     app_id = json.loads(open('fb_client_secrets.json', 'r').read())['web']['app_id']
     app_secret = json.loads(open('fb_client_secrets.json', 'r').read())['web']['app_secret']
-    
+
     url = "https://graph.facebook.com/v2.10/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s" % (app_id ,app_secret, code)
-    
+
     h = httplib2.Http()
     result = json.loads(h.request(url, 'GET')[1])
-   
+
     token = result['access_token']
-    
+
     url = "https://graph.facebook.com/v2.10/me?access_token=%s&fields=id,name,picture,email" % token
     h = httplib2.Http()
     result = json.loads(h.request(url, 'GET')[1])
-    
+
     login_session['username'] = result['name']
     login_session['picture'] = result['picture']['data']['url']
     login_session['email'] = result['email']
     login_session['provider'] = 'facebook'
     login_session['id'] = result['id']
-    
+
     newuser = User(username = login_session['username'], email = login_session['email'], id = int(result['id']))
     newactor = Actor(user = newuser)
     newphoto = Photo(user = newuser, path="nophoto.jpg")
     newcredit = Credit(user = newuser)
     #newuser.hash_password('id')
-    
+
     if session.query(User).filter_by(username = newuser.username).first() is None:
-        
+
         session.add(newuser)
         session.add(newactor)
         session.add(newphoto)
@@ -258,7 +316,7 @@ def gconnect():
            % access_token)
     h = httplib2.Http()
     result = json.loads(h.request(url, 'GET')[1])
-    
+
     # If there was an error in the access token info, abort.
     if result.get('error') is not None:
         response = make_response(json.dumps(result.get('error')), 500)
@@ -304,15 +362,16 @@ def gconnect():
     login_session['username'] = data['name']
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
-    
-    newuser = User(username = login_session['username'], email = login_session['email'], id = int(data['id']))
+    login_session['id'] = int(data['id'][-5:-1])
+
+    newuser = User(username = login_session['username'], email = login_session['email'], id = int(data['id'][-5:-1]))
     newactor = Actor(user = newuser)
     newphoto = Photo(user = newuser, path="nophoto.jpg")
     newcredit = Credit(user = newuser)
     #newuser.hash_password('id')
-    
+
     if session.query(User).filter_by(username = newuser.username).first() is None:
-        
+
         session.add(newuser)
         session.add(newactor)
         session.add(newphoto)
@@ -332,100 +391,123 @@ def gconnect():
 
 @app.route('/gdisconnect')
 def gdisconnect():
- 
+
     provider = login_session.get('provider')
-    
+
     if provider is None:
-      
+
         login_session.clear()
-        
-            
+
+
         resp = make_response(redirect(url_for('homepage')))
-        
+
         #Fixes error in Safari caused by pre-fetch of cached pages
         resp.headers['Cache-Control']='no-cache, no-store, must-revalidate, post-check=0, pre-check=0'
-        
+
         return resp
 
     if provider == 'google':
+
         url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']
         h = httplib2.Http()
         result = h.request(url, 'GET')[0]
-    
+
         if result['status'] == '200':
-                    
+
             login_session.clear()
-        
-        
+
+
             resp = make_response(redirect(url_for('homepage')))
-        
+
             #Fixes error in Safari caused by pre-fetch of cached pages
             resp.headers['Cache-Control']='no-cache, no-store, must-revalidate, post-check=0, pre-check=0'
-        
+
             return resp
-    
+
         else:
-        
+
             response = make_response(json.dumps('Failed to revoke token for given user.', 400))
             response.headers['Content-Type'] = 'application/json'
             return response
-        
+
     if provider == 'facebook':
-        
+
         login_session.clear()
-        
+ 
         resp = make_response(redirect(url_for('homepage')))
-        
+ 
         #Fixes error in Safari caused by pre-fetch of cached pages
         resp.headers['Cache-Control']='no-cache, no-store, must-revalidate, post-check=0, pre-check=0'
-        
+  
         return resp
 
-    
+
 @app.route('/talent')
 def talentpage():
     return "talent"
-    
+
 @app.route('/talent/profile/<int:profile_id>')
 def profilepage(profile_id):
-    
+
     actor = session.query(Actor).filter_by(user_id=profile_id).first()
     photo = session.query(Photo).filter_by(user_id=profile_id).first()
     credit = session.query(Credit).filter_by(user_id=profile_id).first()
     user = session.query(User).filter_by(id=profile_id).first()
-    
+
     if 'id' in login_session:
         if login_session['id'] == profile_id:
-    
+
             return render_template("profile.html", actor=actor, photo=photo, credit=credit, user=user)
-    
+
     return render_template("profile.html", actor=actor, photo=photo, credit=credit)
-    
-    
+
+
 @app.route('/talent/profile/<int:profile_id>/delete')
 def deleteprofilepage():
     return "delete profile"
-    
+
 @app.route('/account/<int:profile_id>')
 def accountpage():
     return "account"
-    
+
 @app.route('/admin')
 def adminpage():
     return "admin"
-    
+
 @app.route('/admin/add')
 def addprofilepage():
     return "add profile"
-    
+
 @app.route('/submissions')
 def submissionpage():
     return "submissions"
-    
-@app.route('/upload')
-def uploadphoto():
-    return "index.html"
-    
+
+@app.route('/upload/<int:userid>', methods = ['POST'])
+def uploadphoto(userid):
+
+    if request.method == 'POST' and 'photo' in request.files:
+
+        filename = photos.save(request.files['photo'], folder = 'uploads')
+        tempuser = session.query(User).filter_by(id=userid).first()
+        oldphoto = session.query(Photo).filter_by(user_id=userid).first()
+        newphoto = Photo(path=filename[8::], user=tempuser)
+
+        session.add(newphoto)
+        session.delete(oldphoto)
+        session.commit()
+        
+        if os.path.isfile('static/img/uploads/' + oldphoto.path) and oldphoto.path != 'nophoto.jpg':
+            os.remove('static/img/uploads/' + oldphoto.path)
+            
+        print(session.query(Photo).count())
+        print(int(session.query(Photo).filter(Photo.path != 'nophoto.jpg').count()))
+
+        flash("Photo Saved")
+
+        return redirect(url_for('profilepage', profile_id=userid))
+
+    return redirect(url_for('profilepage', profile_id=userid))
+ 
 if __name__=='__main__':
     app.debug = True
     app.secret_key = os.urandom(24)

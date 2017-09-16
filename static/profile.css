@@ -42,14 +42,14 @@ height: auto;
 }
 
 .profilepic {
-  margin-top: 50px;
+  margin-top: 30px;
   margin-left: 20px;
   display: inline-block;
-  width: 100px;
+  width: 250px;
 }
 
 .profilepic img {
-  width: 100px;
+  width: 250px;
   height: auto;
 }
 
