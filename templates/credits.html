@@ -1,63 +1,17 @@
 <!DOCTYPE html>
 
-<head>
+{% extends 'layout.html' %}
 
-<title>Talent One</title>
-
-<link rel="stylesheet" type=text/css href="{{ url_for('static', filename='talentone.css' ) }}">
-<link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700" rel="stylesheet">
-
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Talent One is a Raleigh based talent agency representing actors for film, television, and commercials">
-<meta name="keywords" content="talent agency, raleigh, film, television, representation">
-
-</head>
-
-<body>
-
-<div id="wrapper">
-
-  <header>
-
-    <div class="headercontainer">
-      <div class="logobox">
-        <a href="{{url_for ('homepage')}}"><img class="logo" alt="logo" src="{{ url_for('static', filename='img/T1logo2.png' ) }}"></a>
-      </div>
-      <div class="navigation">
-        <ul>
-          <li title="TALENT"><a href="{{url_for ('talentpage')}}">TALENT</a></li>
-          <li title="ABOUT US"><a href="{{url_for ('aboutpage')}}">ABOUT US</a></li>
-          <li title="CREDITS"><a href="{{url_for ('creditspage')}}">CREDITS</a></li>
-          {% if not user %}
-          <li title="SUBMISSIONS"><a href="{{url_for ('submissionpage')}}">SUBMISSIONS</a></li>
-          {% endif %}
-          <li title="CONTACT US"><a href="{{url_for ('contactpage')}}">CONTACT US</a></li>
-          {% if not user %}
-          <li title="LOGIN"><a href="{{url_for ('loginpage')}}">LOGIN</a></li>
-          {%endif%}
-          {% if user %}
-          <li title="MY PROFILE"><a href="{{url_for ('profilepage', profile_id = user.id)}}">MY PROFILE</a></li>
-          {% endif %}
-          {% if user %}
-          <li title="MY ACCOUNT"><a href="{{url_for ('accountpage', profile_id = user.id)}}">MY ACCOUNT</a></li>
-          {% endif %}
-          {% if user %}
-          <li title="LOG OUT"><a href="{{url_for ('gdisconnect')}}">LOG OUT</a></li>
-          {% endif %}
-        </ul>
-      </div>
-    </div>
+{%block main%}
+  <main>
 
   <h2 class = "creditheader">A FEW PROJECTS WE'VE WORKED ON</h2>
 
-  </header>
   <div class="posterwrapper">
     {% for poster in posters %}
     <img class="poster" alt="poster" src="{{ url_for('static', filename='img/posters/' + poster ) }}">
     {% endfor %}
   </div>
 
-</div>
-
-</body>
+  </main>
+{%endblock%}

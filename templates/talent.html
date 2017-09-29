@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+
+{% extends 'layout.html' %}
+
+{% block main %}
+<main>
+  <div class = 'talentwrapper'>
+
+    {% for pic in piclist %}
+      <img class='talent' src= "{{ url_for('static', filename = 'img/uploads/' + pic) }}">
+    {% endfor %}
+
+  </div>
+</main>
+{% endblock %}

@@ -11,6 +11,7 @@ A web page/app for a talent agency allowing clients to manage profiles
 
 from flask import Flask, render_template, flash, request, abort, session as login_session, redirect, url_for, jsonify, send_from_directory
 from flask_uploads import UploadSet, IMAGES, configure_uploads, patch_request_class
+#from siteforms import ContactForm
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Actor, Photo, Credit, User
@@ -61,8 +62,8 @@ def homepage():
     bannerpics = removeBadPics(bannerpics, rowCount, number_of_pics)
 
 
-    if 'username' in login_session:
-        user = session.query(User).filter_by(username = login_session['username']).first()
+    if 'email' in login_session:
+        user = session.query(User).filter_by(email = login_session['email']).first()
         return render_template("index.html", piclist = bannerpics, user = user)
     else:
         return render_template("index.html", piclist = bannerpics, user = None)
@@ -149,9 +150,8 @@ def bannerpicfill(count, rowCount):
 
 @app.route('/about')
 def aboutpage():
-    rowCount = int(session.query(Photo).count())
-    bannerpics = session.query(Photo).offset(int(rowCount*random.random())).limit(6).all()
-    return render_template("index.html", piclist = bannerpics)
+
+    return render_template("about.html")
 
 @app.route('/contact')
 def contactpage():
@@ -167,7 +167,9 @@ def creditspage():
         break
 
     for poster in posters:
-        if poster[-3:-1] != 'jpg':
+        if poster[-3:] != 'jpg':
+            print(poster[-3:-1])
+            print(poster)
             posters.remove(poster)
 
     random.shuffle(posters)
@@ -362,9 +364,8 @@ def gconnect():
     login_session['username'] = data['name']
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
-    login_session['id'] = int(data['id'][-5:-1])
 
-    newuser = User(username = login_session['username'], email = login_session['email'], id = int(data['id'][-5:-1]))
+    newuser = User(username = login_session['username'], email = login_session['email'])
     newactor = Actor(user = newuser)
     newphoto = Photo(user = newuser, path="nophoto.jpg")
     newcredit = Credit(user = newuser)
@@ -377,6 +378,10 @@ def gconnect():
         session.add(newphoto)
         session.add(newcredit)
         session.commit()
+        
+    newuser = session.query(User).filter_by(email = login_session['email']).first()
+    
+    login_session['id'] = newuser.id
 
     output = '<br>'
     output += '<h1>Welcome, '
@@ -444,7 +449,14 @@ def gdisconnect():
 
 @app.route('/talent')
 def talentpage():
-    return "talent"
+    
+    piclist = session.query(User).all()
+    
+    for idx, pic in enumerate (piclist):
+        piclist[idx] = pic.photo[0].path
+    
+
+    return render_template('talent.html', piclist = piclist)
 
 @app.route('/talent/profile/<int:profile_id>')
 def profilepage(profile_id):

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+
+{%block head%}
+<head>
+
+<meta charset="utf-8">
+
+<title>Talent One</title>
+
+<link rel="stylesheet" type=text/css href="{{ url_for('static', filename='css/talentone.css' ) }}">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700" rel="stylesheet">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Talent One is a Raleigh based talent agency representing actors for film, television, and commercials">
+<meta name="keywords" content="talent agency, raleigh, film, television, representation">
+
+</head>
+{%endblock%}
+
+{% block body %}
+<body>
+
+<div id="wrapper">
+
+  <header>
+
+    <div class="headercontainer">
+      <div class="logobox">
+        <a href="{{url_for ('homepage')}}"><img class="logo" alt="logo" src="{{ url_for('static', filename='img/T1logo2.png' ) }}"></a>
+      </div>
+      <div class="navigation">
+        <ul>
+          <li title="TALENT"><a href="{{url_for ('talentpage')}}">TALENT</a></li>
+          <li title="ABOUT US"><a href="{{url_for ('aboutpage')}}">ABOUT US</a></li>
+          <li title="CREDITS"><a href="{{url_for ('creditspage')}}">CREDITS</a></li>
+          {% if not user %}
+          <li title="SUBMISSIONS"><a href="{{url_for ('submissionpage')}}">SUBMISSIONS</a></li>
+          {% endif %}
+          <li title="CONTACT US"><a href="{{url_for ('contactpage')}}">CONTACT US</a></li>
+          {% if not user %}
+          <li title="LOGIN"><a href="{{url_for ('loginpage')}}">LOGIN</a></li>
+          {%endif%}
+          {% if user %}
+          <li title="MY PROFILE"><a href="{{url_for ('profilepage', profile_id = user.id)}}">MY PROFILE</a></li>
+          {% endif %}
+          {% if user %}
+          <li title="MY ACCOUNT"><a href="{{url_for ('accountpage', profile_id = user.id)}}">MY ACCOUNT</a></li>
+          {% endif %}
+          {% if user %}
+          <li title="LOG OUT"><a href="{{url_for ('gdisconnect')}}">LOG OUT</a></li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+
+  </header>
+
+  {% block main %}
+  {% endblock %}
+
+  <footer>
+    <div class= 'footer-top'>
+      <div class="logobox">
+        <img class="logo" alt="logo" src="{{ url_for('static', filename='img/T1footerlogo.png' ) }}">
+      </div>
+      <div class= 'footercontact'>
+        1100 Logger Court<br>
+        Suite B103<br>
+        Raleigh, NC 27609
+      </div>
+      <div class= 'footercontact'>
+        Phone: 919-872-4828<br>
+        Email: info@talentone.net<br>
+      </div>
+      <div class= 'footersocial'>
+        <img class= 'social' alt='facebook' src="{{ url_for('static', filename='img/icons/facebook.png' ) }}">
+        <img class= 'social' alt='facebook' src="{{ url_for('static', filename='img/icons/instagram.png' ) }}">
+      </div>
+    </div>
+
+    <div class = 'footer-bottom'>
+      <span class='copyright'>Copyright 2017 Talent One</span>
+      <span class='copyright'>|</span>
+      <span class='copyright'>Sitemap</span>
+      <span class='copyright'>|</span>
+      <span class='copyright'>Privacy Policy</span>
+    </div>
+  </footer>
+
+</div>
+
+</body>
+{% endblock %}

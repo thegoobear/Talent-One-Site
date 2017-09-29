@@ -1,51 +1,58 @@
 <!DOCTYPE html>
 
-<head>
+{% extends 'layout.html' %}
 
-<title>Talent One</title>
+{% block main %}
+  <main>
 
-<link rel="stylesheet" type=text/css href="{{ url_for('static', filename='talentone.css' ) }}">
-<link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700" rel="stylesheet">
+    <h2 class = "creditheader">ABOUT US</h2>
 
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Talent One is a Raleigh based talent agency representing actors for film, television, and commercials">
-<meta name="keywords" content="talent agency, raleigh, film, television, representation">
-
-</head>
-
-<body>
-
-<div id="wrapper">
-
-  <header>
-
-    <div class="headercontainer">
-      <div class="logobox">
-        <img class="logo" alt="logo" src="{{ url_for('static', filename='img/T1logo2.png' ) }}">
-      </div>
-      <div class="navigation">
-        <ul>
-          <li title="TALENT"><a href="{{url_for ('talentpage')}}">TALENT</a></li>
-          <li title="ABOUT US"><a href="{{url_for ('aboutpage')}}">ABOUT US</a></li>
-          <li title="RECENT CREDITS"><a href="{{url_for ('creditspage')}}">RECENT CREDITS</a></li>
-          <li title="SUBMISSIONS"><a href="{{url_for ('submissionpage')}}">SUBMISSIONS</a></li>
-          <li title="CONTACT US"><a href="{{url_for ('contactpage')}}">CONTACT US</a></li>
-          <li title="LOGIN"><a href="{{url_for ('loginpage')}}">LOGIN</a></li>
-        </ul>
-      </div>
+    <div class = 'aboutwrapper'>
+      <p>Founded in 1998 by Anne and Rudy Greene, Talent One is a film, television,
+        print, and industrial talent agency based in Raleigh, NC. We provide experienced
+        performers to productions large and small nationwide, with credits ranging from independent
+        film and industrials to national commercials and studio tentpoles. With 20 years
+        of experience representing both SAG-AFTRA and non-union performers, you can rest
+        assured that your career or production is in the right hands.</p>
     </div>
 
-  </header>
+    <h2 class = "creditheader">THE TEAM</h2>
 
-  <div class="bannerphotos">
-    {% for pic in piclist %}
-    <div class="crop">
-    <img class="grayscale" alt="headshot" src="{{ url_for('static', filename='img/' + pic.path ) }}">
+    <div class='teamcontainer'>
+
+    <div class = 'teampicbox'>
+    <figure>
+    <img class="teampic" alt="Anne Greene" src="{{ url_for('static', filename='img/team/anne.jpg' ) }}">
+    <figcaption><h1 class= 'teamname'>Anne Greene</h1><h3>Founder / Head of Commercial</h3></figcaption>
+    </figure>
     </div>
-    {% endfor %}
-  </div>
 
-</div>
+    <div class = 'teampicbox'>
+    <figure>
+    <img class="teampic" alt="Rudy Greene" src="{{ url_for('static', filename='img/team/rudy.jpg' ) }}">
+    <figcaption><h1 class='teamname'>Rudy Greene</h1><h3>Founder / Head of Theatrical</h3></figcaption>
+    </figure>
+    </div>
 
-</body>
+    </div>
+
+    <div class='teamcontainer'>
+
+    <div class = 'teampicbox'>
+    <figure>
+    <img class="teampic2" alt="Tripp Green" src="{{ url_for('static', filename='img/team/tripp.jpg' ) }}">
+    <figcaption><h1 class='teamname'>Tripp Green</h1><h3>Web Development</h3></figcaption>
+    </figure>
+    </div>
+
+    <div class = 'teampicbox'>
+    <figure>
+    <img class="teampic2" alt="Bella Greene" src="{{ url_for('static', filename='img/team/bella.jpg' ) }}">
+    <figcaption><h1 class='teamname'>Bella Greene</h1><h3>SVP of Sausage Biscuits</h3></figcaption>
+    </figure>
+    </div>
+
+    </div>
+
+  </main>
+{% endblock %}

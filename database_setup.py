@@ -52,7 +52,7 @@ class Actor(Base):
     gender = Column(String(20))
     hair = Column(String(20))
     user_id = Column(Integer, ForeignKey('user.id'))
-    user = relationship(User)
+    user = relationship(User, backref = 'actor')
     
     @property
     def serialize(self):
@@ -74,7 +74,7 @@ class Photo(Base):
     actor_id = Column(Integer, ForeignKey('actor.id'))
     actor = relationship(Actor)
     user_id = Column(Integer, ForeignKey('user.id'))
-    user = relationship(User)   
+    user = relationship(User, backref='photo') 
     
 class Credit(Base):
     
@@ -88,7 +88,7 @@ class Credit(Base):
     actor_id = Column(Integer, ForeignKey('actor.id'))
     actor = relationship(Actor)
     user_id = Column(Integer, ForeignKey('user.id'))
-    user = relationship(User) 
+    user = relationship(User, backref = 'credit') 
     
         
 engine = create_engine('sqlite:///talentone.db')

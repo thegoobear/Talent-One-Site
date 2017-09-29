@@ -1,0 +1,38 @@
+.aboutwrapper {
+  font-family: 'Open Sans Condensed', sans-serif;
+  width:70%;
+  margin: auto;
+  margin-top: 30px;
+  word-wrap: break-word;
+  text-align: center;
+}
+
+.teamcontainer {
+  display: flex;
+  justify-content: center;
+  padding-top: 20px;
+  flex-wrap: wrap;
+}
+
+.teampicbox {
+  margin-left: 50px;
+  margin-right: 50px;
+  margin-bottom: 50px;
+  display: inline-block;
+}
+
+.teampic {
+  border-radius: 400px;
+  height:450px;
+}
+
+.teampic2 {
+  border-radius: 400px;
+  height:300px;
+  margin: auto;
+}
+
+.teamname {
+  margin:5px;
+  font-family: 'Permanent Marker', cursive;
+}
