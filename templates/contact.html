@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+
+{% extends 'layout.html' %}
+
+{% block main %}
+
+<main>
+
+  {%if success%}
+    <h2 class='creditheader'>CONTACT US</h2>
+
+    <h3 class='contactsuccess'>Thank You! Our team is very busy, but we will review
+    your message as soon possible.</h2>
+
+    {%else%}
+
+    <h2 class='creditheader'>CONTACT US</h2>
+
+    <div class='formwrapper'>
+
+      {% for message in form.name.errors %}
+      <div class="flash">{{ message }}</div>
+      {% endfor %}
+
+      {% for message in form.email.errors %}
+        <div class="flash">{{ message }}</div>
+      {% endfor %}
+
+      {% for message in form.message.errors %}
+        <div class="flash">{{ message }}</div>
+      {% endfor %}
+
+      <h5 class='contactdisclaimer'>For talent submission inquiries please visit the submissions page</h5>
+
+      <form name='contact' method='POST' action={{url_for('contactpage')}}>
+
+          {{ form.hidden_tag() }}
+
+          {{ form.name.label }}
+          {{ form.name }}
+
+          {{ form.email.label }}
+          {{ form.email }}
+
+          {{ form.message.label }}
+          {{ form.message }}
+
+          {{ form.submit }}
+
+        </form>
+      </div>
+      {%endif%}
+</main>
+
+{% endblock %}

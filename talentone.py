@@ -25,6 +25,8 @@ import json
 from flask import make_response
 import requests
 from os import walk
+from siteforms import ContactForm
+from flask_mail import Mail, Message
 
 #Pull in the client secret key for Google Sign In
 CLIENT_ID = json.loads(
@@ -40,10 +42,13 @@ app = Flask(__name__)
 
 #Set the destination for user photo uploads
 app.config['UPLOADED_PHOTOS_DEST'] = 'static/img'
+app.config['MAIL_DEFAULT_SENDER'] = 'contact@talentoneagency.com'
+app.config['MAIL_SUPPRESS_SEND'] = True
 
 photos = UploadSet('photos', IMAGES)
 configure_uploads(app, (photos))
 patch_request_class(app)
+mail = Mail(app)
 
 @app.route('/')
 @app.route('/index')
@@ -80,17 +85,13 @@ def removeBadPics(bannerpics, rowCount, number_of_pics):
 
             im = Image.open("static/img/uploads/" + pic.path)
             picsize = im.size
-            
-            print (pic.path)
 
             if (picsize[0]<picsize[1]):
                 bannerpics2.append(bannerpics[idx])
                 
             im.close()
-            
-        bannerpics = bannerpics2[:]
     
-        return bannerpics
+        return bannerpics2
     
     #If there are more photos in the DB than will be displayed, we must
     #replace duplicates as well as remove landscape photos. This for loop
@@ -153,9 +154,33 @@ def aboutpage():
 
     return render_template("about.html")
 
-@app.route('/contact')
+@app.route('/contact', methods = ['GET', 'POST'])
 def contactpage():
-    return "Contact"
+    
+    form = ContactForm()
+    
+    if request.method == 'POST' and form.validate():
+        
+        msg = Message('Talent One Website Contact Form', recipients=['anne@talentoneagency.com'])
+        
+        msg.body = """
+        From: %s <%s>
+        %s
+        """ % (form.name.data, form.email.data, form.message.data)
+        
+        mail.send(msg)
+        
+        if 'id' in login_session:        
+            user = session.query(User).filter_by(id=login_session['id']).first()          
+            return render_template('contact.html', success=True, user=user)
+        
+        return render_template('contact.html', success=True)
+    
+    if 'id' in login_session:        
+        user = session.query(User).filter_by(id=login_session['id']).first()
+        return render_template('contact.html', form=form, user=user)
+    
+    return render_template('contact.html', form=form)
 
 @app.route('/credits')
 def creditspage():
@@ -174,8 +199,8 @@ def creditspage():
 
     random.shuffle(posters)
 
-    if 'username' in login_session:
-        user = session.query(User).filter_by(username = login_session['username']).first()  
+    if 'id' in login_session:        
+        user = session.query(User).filter_by(id=login_session['id']).first() 
         return render_template("credits.html", posters = posters, user = user)
 
     return render_template("credits.html", posters = posters)
@@ -187,6 +212,11 @@ def loginpage():
 
         state = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
         login_session['state'] = state
+                     
+        if 'id' in login_session:        
+            user = session.query(User).filter_by(id=login_session['id']).first()
+            
+            return render_template("login.html", STATE = state, user=user)
 
         return render_template("login.html", STATE = state)
 
@@ -198,7 +228,7 @@ def loginpage():
 
         if dbuser:
             if dbuser.verify_password(password):
-                login_session['username'] = dbuser.username
+                login_session['username'] = dbuser.actor[0].name
                 login_session['id'] = dbuser.id
                 login_session['email']=dbuser.email
                 return homepage()
@@ -209,7 +239,7 @@ def newuser():
 
     state = request.form['STATE']
 
-    newuser = User(username = request.form['username'], email = request.form['email'])
+    newuser = User(email = request.form['email'])
     newactor = Actor(user = newuser)
     newphoto = Photo(user = newuser, path="nophoto.jpg")
     newcredit = Credit(user = newuser)
@@ -455,23 +485,24 @@ def talentpage():
     for idx, pic in enumerate (piclist):
         piclist[idx] = pic.photo[0].path
     
+    if 'id' in login_session:        
+        user = session.query(User).filter_by(id=login_session['id']).first()
+        
+        return render_template('talent.html', piclist = piclist, user=user)
 
     return render_template('talent.html', piclist = piclist)
 
 @app.route('/talent/profile/<int:profile_id>')
 def profilepage(profile_id):
 
-    actor = session.query(Actor).filter_by(user_id=profile_id).first()
-    photo = session.query(Photo).filter_by(user_id=profile_id).first()
-    credit = session.query(Credit).filter_by(user_id=profile_id).first()
     user = session.query(User).filter_by(id=profile_id).first()
 
     if 'id' in login_session:
         if login_session['id'] == profile_id:
 
-            return render_template("profile.html", actor=actor, photo=photo, credit=credit, user=user)
+            return render_template("profile.html", actor=user.actor[0], photo=user.photo[0], credit=user.credit[0], user=user)
 
-    return render_template("profile.html", actor=actor, photo=photo, credit=credit)
+    return render_template("profile.html", actor=user.actor[0], photo=user.photo[0], credit=user.credit[0])
 
 
 @app.route('/talent/profile/<int:profile_id>/delete')
