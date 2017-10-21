@@ -152,6 +152,10 @@ def bannerpicfill(count, rowCount):
 @app.route('/about')
 def aboutpage():
 
+    if 'id' in login_session:        
+        user = session.query(User).filter_by(id=login_session['id']).first()
+        return render_template("about.html", user=user)
+    
     return render_template("about.html")
 
 @app.route('/contact', methods = ['GET', 'POST'])
