@@ -7,7 +7,7 @@
   <div class = 'talentwrapper'>
 
     {% for pic in piclist %}
-      <img class='talent' src= "{{ url_for('static', filename = 'img/uploads/' + pic) }}">
+      <a href="{{ url_for('profilepage', profile_id=pic.user.id) }}"><img class='talent' src= "{{ url_for('static', filename = 'img/uploads/' + pic.path) }}"></a>
     {% endfor %}
 
   </div>

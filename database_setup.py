@@ -26,6 +26,7 @@ class User(Base):
     password = Column(String(80))
     email = Column(String(80))
     paid = Column(Boolean)
+    admin = Column(Boolean)
     
     def hash_password (self, password):
         self.password = pw_context.encrypt(password)

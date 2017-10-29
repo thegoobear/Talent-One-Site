@@ -484,10 +484,21 @@ def gdisconnect():
 @app.route('/talent')
 def talentpage():
     
-    piclist = session.query(User).all()
+    piclist = []
     
-    for idx, pic in enumerate (piclist):
-        piclist[idx] = pic.photo[0].path
+ '''   if 'id' in login_session:
+        user=session.query(User).filter_by(email=login_session['id']).first()
+        if user.admin:
+            userlist = session.query(User).all()
+            for user in userlist:
+                piclist.append(user.photo[0])
+            return render_template('talent.html', piclist = piclist, user=user)
+ '''               
+    
+    userlist = session.query(User).filter_by(paid = True).all()
+    
+    for user in userlist:
+        piclist.append(user.photo[0])
     
     if 'id' in login_session:        
         user = session.query(User).filter_by(id=login_session['id']).first()
