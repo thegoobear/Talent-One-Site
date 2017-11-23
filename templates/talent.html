@@ -7,7 +7,33 @@
   <div class = 'talentwrapper'>
 
     {% for pic in piclist %}
-      <a href="{{ url_for('profilepage', profile_id=pic.user.id) }}"><img class='talent' src= "{{ url_for('static', filename = 'img/uploads/' + pic.path) }}"></a>
+    {% if user and user.admin or pic.user.paid %}
+      {% if user and user.admin %}
+      <div class = 'talentcontainer'>
+      {% else %}
+      <div class = 'talentcontainer2'>
+      {% endif %}
+        <a href="{{ url_for('profilepage', profile_id=pic.user.id) }}"><img class='talent' src= "{{ url_for('static', filename = 'img/uploads/' + pic.path) }}"></a>
+        {% if user and user.admin %}
+        <div class = 'talentbuttoncontainer'>
+        <a href="{{ url_for('editprofile', profile_id=pic.user.id, creditcount=0) }}" class='talentbutton'>EDIT</a>
+        <a href="{{ url_for('deleteprofile', profile_id=pic.user.id) }}" class='talentbutton' onclick="return confirm('Are you sure?');">DELETE</a>
+        {% if pic.user.featured %}
+        <a href="{{ url_for('featureswitch', userid=pic.user.id) }}" class='talentbutton2'>FEATURE</a>
+        {% endif %}
+        {% if not pic.user.featured %}
+        <a href="{{ url_for('featureswitch', userid=pic.user.id) }}" class='talentbutton'>FEATURE</a>
+        {% endif %}
+        {% if pic.user.paid %}
+        <a href="{{ url_for('paidswitch', userid=pic.user.id) }}" class='talentbutton2'>PAID</a>
+        {% endif %}
+        {% if not pic.user.paid %}
+        <a href="{{ url_for('paidswitch', userid=pic.user.id) }}" class='talentbutton'>UNPAID</a>
+        {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    {% endif %}
     {% endfor %}
 
   </div>

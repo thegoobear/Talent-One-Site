@@ -8,7 +8,7 @@
     <div class="bannerphotos">
       {% for pic in piclist %}
       <div class="crop">
-        <img class="grayscale" alt="headshot" src="{{ url_for('static', filename='img/uploads/' + pic.path ) }}">
+        <a href="{{ url_for('profilepage', profile_id=pic.user.id) }}"><img class="grayscale" alt="headshot" src="{{ url_for('static', filename='img/uploads/' + pic.path ) }}"></a>
       </div>
       {% endfor %}
     </div>

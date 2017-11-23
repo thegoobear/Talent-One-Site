@@ -1,5 +1,15 @@
 input {
   display: block;
+  &[name=submit] {
+    width: 100px;
+    margin-bottom: 10px;
+    background-color: black;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    cursor: pointer;
+  }
 }
 
 .loginwrapper {
@@ -34,7 +44,7 @@ ul.tabs {
 
 .tab-content{
   display: none;
-  min-height:200px;
+  min-height:225px;
   background: #ededed;
   padding: 15px;
   &.current{

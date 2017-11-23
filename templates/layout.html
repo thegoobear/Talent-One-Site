@@ -40,10 +40,10 @@
           {% if not user %}
           <li title="LOGIN"><a href="{{url_for ('loginpage')}}">LOGIN</a></li>
           {%endif%}
-          {% if user %}
+          {% if user and not user.admin %}
           <li title="MY PROFILE"><a href="{{url_for ('profilepage', profile_id = user.id)}}">MY PROFILE</a></li>
           {% endif %}
-          {% if user %}
+          {% if user and not user.admin %}
           <li title="MY ACCOUNT"><a href="{{url_for ('accountpage', profile_id = user.id)}}">MY ACCOUNT</a></li>
           {% endif %}
           {% if user %}

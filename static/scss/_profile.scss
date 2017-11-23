@@ -9,3 +9,32 @@
   width: 250px;
   height: auto;
 }
+
+input {
+  display: block;
+  &[name=submit] {
+    width: 100px;
+    margin-bottom: 10px;
+    background-color: black;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+}
+
+.profilebutton {
+    width: 250px;
+    height: 50px;
+    margin-top: 10px;
+    background-color: black;
+    border: none;
+    color: white;
+    padding: 6px 10px;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    font-family: 'Open Sans Condensed', sans-serif;
+    font-size: 20pt;
+}

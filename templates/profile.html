@@ -6,12 +6,9 @@
 <main>
 
   <div class="profilepic">
-    <img class="logo" alt="logo" src="{{ url_for('static', filename='img/uploads/' + photo.path ) }}">
+    <img alt="headshot" src="{{ url_for('static', filename='img/uploads/' + photo.path ) }}">
     {% if user %}
-    <form method='POST' enctype='multipart/form-data' action="{{ url_for('uploadphoto', userid = user.id) }}">
-    <input type='file' name='photo'>
-    <input type='submit' value='Upload'>
-    </form>
+    <a href="{{ url_for('editprofile', profile_id=photo.user.id, creditcount=1) }}" class='profilebutton'>EDIT</a>
     {% endif %}
   </div>
 

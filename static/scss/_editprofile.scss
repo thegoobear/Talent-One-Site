@@ -1,4 +1,4 @@
-.formwrapper {
+.editprofileformwrapper {
   width: 60%;
   margin-left: auto;
   margin-right: auto;
@@ -9,8 +9,8 @@
   padding:20px;
 
     label {
-      display: block;
-      margin-top: 10px;
+      display: inline-block;
+      margin-top: 15px;
     }
 
     input {
@@ -27,6 +27,11 @@
         text-decoration: none;
         cursor: pointer;
       }
+
+      &[name=sag] {
+        display: inline-block;
+        width: 10px;
+      }
     }
 
     textarea {
@@ -34,22 +39,4 @@
       height:150px;
     }
 
-}
-
-.contactsuccess {
-  margin-top: 30px;
-  overflow: hidden;
-  text-align: center;
-  font-family: 'Open Sans Condensed', sans-serif;
-}
-
-/* Message flashing */
-.flash {
-  background-color: #FBB0B0;
-  padding: 10px;
-  width: 400px;
-}
-
-.contactdisclaimer {
-  text-align: center;
 }

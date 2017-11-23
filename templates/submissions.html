@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+
+{% extends 'layout.html' %}
+
+{% block main %}
+
+<main>
+
+  {%if success%}
+    <h2 class='creditheader'>SUBMISSIONS</h2>
+
+    <h3 class='submissionsuccess'>Thank You! Our team is very busy, but we will review
+    your message as soon possible.</h2>
+
+    {%else%}
+
+    <h2 class='creditheader'>SUBMISSIONS</h2>
+
+    <div class='submissionformwrapper'>
+
+      {% for message in form.name.errors %}
+      <div class="flash">{{ message }}</div>
+      {% endfor %}
+
+      {% for message in form.email.errors %}
+        <div class="flash">{{ message }}</div>
+      {% endfor %}
+
+      {% for message in form.message.errors %}
+        <div class="flash">{{ message }}</div>
+      {% endfor %}
+
+      {% for message in form.photo.errors %}
+        <div class="flash">{{ message }}</div>
+      {% endfor %}
+
+      {% for message in form.resume.errors %}
+        <div class="flash">{{ message }}</div>
+      {% endfor %}
+
+      <h3 class='submissionheader'>A FEW THINGS TO KNOW</h3>
+      <div class='submissiondisclaimer'>
+      <ol>
+      <h5><li>We represent adult actors and children over the age of 4</li></h5>
+      <h5><li>We do not represent screenplays, runway models, or book musicians</li></h5>
+      <h5><li>Productions take place on work days. You must be availble during the week.
+      This includes child actors, who must also have a guardian present on set.</li></h5>
+      <h5><li>You must have or be willing to get professional headshots.</li></h5>
+      <h5><li>Professional acting experience is required. This does not necessarily mean
+      SAG or large budget productions. Independent film, corporate video, and theater
+      are acceptable.</li></h5>
+      <h5><li>If interested we will contact you for an interview and cold-read on camera</li></h5>
+      </ol>
+
+
+      <form name='contact' method='POST' action={{url_for('submissionpage')}}>
+
+          {{ form.hidden_tag() }}
+
+          {{ form.name.label }}
+          {{ form.name }}
+
+          {{ form.email.label }}
+          {{ form.email }}
+
+          {{ form.phone.label }}
+          {{ form.phone }}
+
+          {{ form.message.label }}
+          {{ form.message }}
+
+          {{ form.photo.label }} (JPG)
+          {{ form.photo }}
+
+          {{ form.resume.label }} (PDF)
+          {{ form.resume }}
+
+          {{ form.submit }}
+
+        </form>
+      </div>
+      </div>
+      {%endif%}
+</main>
+
+{% endblock %}

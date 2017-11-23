@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+
+{% extends 'layout.html' %}
+
+{% block main %}
+
+<main>
+
+  {%if success%}
+    <h2 class='creditheader'>EDIT PROFILE</h2>
+
+    <h3 class='contactsuccess'>Thank You! Our team is very busy, but we will review
+    your message as soon possible.</h2>
+
+    {%else%}
+
+    <h2 class='creditheader'>EDIT PROFILE</h2>
+
+    <div class='editprofileformwrapper'>
+
+      {% for message in form.firstname.errors %}
+      <div class="flash">{{ message }}</div>
+      {% endfor %}
+
+      {% for message in form.lastname.errors %}
+        <div class="flash">{{ message }}</div>
+      {% endfor %}
+
+      {% for message in form.email.errors %}
+        <div class="flash">{{ message }}</div>
+      {% endfor %}
+
+      {% for message in form.age.errors %}
+      <div class="flash">{{ message }}</div>
+    {% endfor %}
+
+      <form name='editprofile' method='POST' action="{{url_for('editprofile', profile_id=profile_id, creditcount=creditcount)}}">
+
+          {{ form.hidden_tag() }}
+
+          {{ form.firstname.label }}
+          {{ form.firstname }}
+
+          {{ form.lastname.label }}
+          {{ form.lastname }}
+
+          {{ form.age.label }}
+          {{ form.age }}
+
+          {{ form.email.label }}
+          {{ form.email }}
+
+          {{ form.phone.label }}
+          {{ form.phone }}
+
+          {{ form.sag.label }}
+          <br>
+          {% for subfield in form.sag %}
+            {{ subfield }}
+            {{ subfield.label }}
+          {% endfor %}
+
+          {{ form.submit }}
+
+        </form>
+      </div>
+      {%endif%}
+</main>
+
+{% endblock %}

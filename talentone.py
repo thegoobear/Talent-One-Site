@@ -25,7 +25,7 @@ import json
 from flask import make_response
 import requests
 from os import walk
-from siteforms import ContactForm
+from siteforms import ContactForm, SubmissionForm, EditUser
 from flask_mail import Mail, Message
 
 #Pull in the client secret key for Google Sign In
@@ -86,7 +86,7 @@ def removeBadPics(bannerpics, rowCount, number_of_pics):
             im = Image.open("static/img/uploads/" + pic.path)
             picsize = im.size
 
-            if (picsize[0]<picsize[1]):
+            if (picsize[0]<picsize[1] and pic.user.featured):
                 bannerpics2.append(bannerpics[idx])
                 
             im.close()
@@ -232,24 +232,23 @@ def loginpage():
 
         if dbuser:
             if dbuser.verify_password(password):
-                login_session['username'] = dbuser.actor[0].name
+                login_session['username'] = dbuser.actor[0].firstname
                 login_session['id'] = dbuser.id
                 login_session['email']=dbuser.email
-                return homepage()
-
+                return homepage()  
 
 @app.route('/login/newuser', methods = ['POST'])
 def newuser():
 
     state = request.form['STATE']
 
-    newuser = User(email = request.form['email'])
+    newuser = User(email = request.form['email'], admin = False)
     newactor = Actor(user = newuser)
     newphoto = Photo(user = newuser, path="nophoto.jpg")
     newcredit = Credit(user = newuser)
     newuser.hash_password(request.form['password'])
 
-    if session.query(User).filter_by(username = newuser.username).first() is not None:
+    if session.query(User).filter_by(email = newuser.email).first() is not None:
         abort(400)
 
     if login_session['state'] != state:
@@ -260,8 +259,10 @@ def newuser():
     session.add(newphoto)
     session.add(newcredit)
     session.commit()
+    
+    user = session.query(User).filter_by(email=newuser.email).first()
 
-    return homepage()
+    return redirect(url_for('editprofile', profile_id=user.id, creditcount=1))
 
 @app.route('/fbconnect', methods = ['POST'])
 def fbconnect():
@@ -294,21 +295,23 @@ def fbconnect():
     login_session['picture'] = result['picture']['data']['url']
     login_session['email'] = result['email']
     login_session['provider'] = 'facebook'
-    login_session['id'] = result['id']
+    #login_session['id'] = result['id']
 
-    newuser = User(username = login_session['username'], email = login_session['email'], id = int(result['id']))
+    newuser = User(email = login_session['email'], id = int(result['id']))
     newactor = Actor(user = newuser)
     newphoto = Photo(user = newuser, path="nophoto.jpg")
     newcredit = Credit(user = newuser)
     #newuser.hash_password('id')
 
-    if session.query(User).filter_by(username = newuser.username).first() is None:
+    if session.query(User).filter_by(email = newuser.email).first() is None:
 
         session.add(newuser)
         session.add(newactor)
         session.add(newphoto)
         session.add(newcredit)
         session.commit()
+        
+    login_session['id'] = newuser.id
 
     output = ''
     output += '<h1>Welcome, '
@@ -399,13 +402,13 @@ def gconnect():
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
 
-    newuser = User(username = login_session['username'], email = login_session['email'])
+    newuser = User(email = login_session['email'])
     newactor = Actor(user = newuser)
     newphoto = Photo(user = newuser, path="nophoto.jpg")
     newcredit = Credit(user = newuser)
     #newuser.hash_password('id')
 
-    if session.query(User).filter_by(username = newuser.username).first() is None:
+    if session.query(User).filter_by(email = newuser.email).first() is None:
 
         session.add(newuser)
         session.add(newactor)
@@ -484,19 +487,22 @@ def gdisconnect():
 @app.route('/talent')
 def talentpage():
     
+    pics=session.query(Photo).all()
+    
+    print (pics[0].path)
+    
     piclist = []
     
- '''   if 'id' in login_session:
+    '''if 'id' in login_session:
         user=session.query(User).filter_by(email=login_session['id']).first()
         if user.admin:
             userlist = session.query(User).all()
             for user in userlist:
                 piclist.append(user.photo[0])
-            return render_template('talent.html', piclist = piclist, user=user)
- '''               
+            return render_template('talent.html', piclist = piclist, user=user)'''
+               
     
-    userlist = session.query(User).filter_by(paid = True).all()
-    
+    userlist = session.query(User).filter(User.admin != True).all()
     for user in userlist:
         piclist.append(user.photo[0])
     
@@ -515,14 +521,23 @@ def profilepage(profile_id):
     if 'id' in login_session:
         if login_session['id'] == profile_id:
 
-            return render_template("profile.html", actor=user.actor[0], photo=user.photo[0], credit=user.credit[0], user=user)
+            return render_template("profile.html", actor=user.actor[0], photo=user.photo[0], user=user)
 
-    return render_template("profile.html", actor=user.actor[0], photo=user.photo[0], credit=user.credit[0])
+    return render_template("profile.html", actor=user.actor[0], photo=user.photo[0])
 
 
 @app.route('/talent/profile/<int:profile_id>/delete')
-def deleteprofilepage():
-    return "delete profile"
+def deleteprofile(profile_id):
+    
+    user = session.query(User).filter_by(id=profile_id).first()
+    
+    if os.path.isfile('static/img/uploads/' + user.photo[0].path) and user.photo[0].path != 'nophoto.jpg':
+            os.remove('static/img/uploads/' + user.photo[0].path)
+    
+    session.delete(user)
+    session.commit()
+    
+    return redirect(url_for('talentpage'))
 
 @app.route('/account/<int:profile_id>')
 def accountpage():
@@ -532,13 +547,76 @@ def accountpage():
 def adminpage():
     return "admin"
 
-@app.route('/admin/add')
-def addprofilepage():
-    return "add profile"
+@app.route('/talent/profile/<int:profile_id>/edit/<int:creditcount>')
+def editprofile(profile_id, creditcount, methods = ['GET','POST']):
+    
+    user = session.query(User).filter_by(id=profile_id).first()
+    
+    form = EditUser(obj=user)
+    
+    if request.method == 'POST' and form.validate():
+        user.actor.firstname=form.firstname.data
+        user.actor.lastname=form.lastname.data
+        user.actor.age=form.age.data
+        user.actor.email=form.email.data
+        user.actor.sage=form.sag.data
+        user.phone=form.phone.data
+        
+        session.commit()
+    
+    return render_template('editprofile.html', form=form, profile_id=profile_id, creditcount=creditcount)
 
-@app.route('/submissions')
+@app.route('/submissions', methods = ['GET', 'POST'])
 def submissionpage():
-    return "submissions"
+    
+    form = SubmissionForm()
+    
+    if request.method == 'POST' and form.validate():
+        
+        msg = Message('Talent One Website Contact Form', recipients=['anne@talentoneagency.com'])
+        
+        msg.body = """
+        From: %s <%s>
+        %s
+        
+        %s
+        """ % (form.name.data, form.email.data, form.message.data, form.phone.data)
+        
+        msg.attach(form.photo.data, form.resume.data)
+        
+        mail.send(msg)
+        
+        if 'id' in login_session:        
+            user = session.query(User).filter_by(id=login_session['id']).first()          
+            return render_template('submissions.html', success=True, user=user)
+        
+        return render_template('submissions.html', success=True)
+    
+    if 'id' in login_session:        
+        user = session.query(User).filter_by(id=login_session['id']).first()
+        return render_template('submissions.html', form=form, user=user)
+    
+    return render_template('submissions.html', form=form)
+    
+@app.route('/paidswitch/<int:userid>')
+def paidswitch(userid):
+    
+    user = session.query(User).filter_by(id=userid).first()
+    user.paid = not user.paid
+    session.commit()
+    
+    return redirect(url_for('talentpage'))
+
+@app.route('/featureswitch/<int:userid>')
+def featureswitch(userid):
+    
+    user = session.query(User).filter_by(id=userid).first()
+    user.featured = not user.featured
+    if not user.paid:
+        user.featured=False;
+    session.commit()
+    
+    return redirect(url_for('talentpage'))
 
 @app.route('/upload/<int:userid>', methods = ['POST'])
 def uploadphoto(userid):

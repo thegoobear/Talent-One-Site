@@ -16,9 +16,22 @@ if __name__=='__main__':
     Base.metadata.bind = engine
     DBSession = sessionmaker(bind = engine)
     session = DBSession()
-
-    Rusty = Photo(path='rusty.jpg')
-    Shannon = Photo(path='shannon.jpg')
+    
+    Rusty = User(email="rusty@poop.com", paid=True, admin = False)
+    Rustyactor = Actor(user = Rusty, firstname = 'Rusty')
+    Rustypic = Photo(path='rusty.jpg', user = Rusty)
+    Shannon = User(email="shannon@poop.com", paid=True, admin = False)
+    Shannonactor = Actor(user = Shannon, firstname = 'Shannon')
+    Shannonpic = Photo(path='shannon.jpg', user = Shannon)
+    Admin = User(email='talentoneagency@gmail.com', admin = True)
+    AdminActor = Actor(user=Admin, firstname='Admin')
+    Admin.hash_password('goo')
+    
+    
+    session.add(Admin)
+    session.add(Rustypic)
     session.add(Rusty)
     session.add(Shannon)
+    session.add(Shannonpic)
+    session.add(Shannonactor)
     session.commit()

@@ -1,0 +1,3 @@
+web: gunicorn app:app
+init: python database_setup.py
+dbfill: python testfill.py

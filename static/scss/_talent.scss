@@ -7,4 +7,52 @@
 .talent {
   height: 150px;
   margin-top: 15px;
+  display: block;
+  margin: auto;
+}
+
+.talentbutton {
+    width: 50px;
+    margin-top: 10px;
+    background-color: black;
+    border: none;
+    color: white;
+    padding: 3px 10px;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    font-size: 10pt;
+}
+
+.talentbutton2 {
+    width: 50px;
+    margin-top: 10px;
+    background-color: blue;
+    border: none;
+    color: white;
+    padding: 3px 10px;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    font-size: 10pt;
+}
+
+.talentcontainer {
+    font-family: 'Open Sans Condensed', sans-serif;
+    width:250px;
+}
+
+.talentcontainer2 {
+    font-family: 'Open Sans Condensed', sans-serif;
+    margin-left:8px;
+    margin-right: 8px;
+}
+
+.talentbuttoncontainer {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  margin: auto;
+  padding-right:15px;
+  padding-left:15px;
 }
