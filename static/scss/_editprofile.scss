@@ -10,7 +10,7 @@
 
     label {
       display: inline-block;
-      margin-top: 15px;
+      margin-top: 10px;
     }
 
     input {
@@ -30,7 +30,37 @@
 
       &[name=sag] {
         display: inline-block;
-        width: 10px;
+        width: 60px;
+      }
+
+      &[name=equity] {
+        display: inline-block;
+        width: 20px;
+      }
+
+      &[name=height_feet] {
+        display: inline-block;
+        width: 25px;
+      }
+
+      &[name=height_inches] {
+        display: inline-block;
+        width: 25px;
+      }
+
+      &[name=age] {
+        display: inline-block;
+        width: 25px;
+        margin-right: 10px;
+      }
+
+      &[name=zipcode] {
+        display: inline-block;
+        width: 80px;
+      }
+
+      &[name=state] {
+        display: inline-block;
       }
     }
 

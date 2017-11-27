@@ -1,13 +1,33 @@
+.profilewrapper {
+  display: flex;
+  justify-content: space-around;
+}
+
 .profilepic {
   margin-top: 30px;
-  margin-left: 20px;
   display: inline-block;
-  width: 250px;
+  width: 26%;
 }
 
 .profilepic img {
-  width: 250px;
+  width: 100%;
   height: auto;
+}
+
+.info {
+  font-weight: 700;
+}
+
+.infowrapper {
+  font-family: 'Open Sans Condensed', sans-serif;
+  //display: inline-block;
+  //vertical-align: top;
+  //text-align: center;
+  width:60%;
+
+  h1{
+    margin-bottom: 50px;
+  }
 }
 
 input {

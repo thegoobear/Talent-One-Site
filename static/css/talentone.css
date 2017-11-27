@@ -1,12 +1,24 @@
+.profilewrapper {
+  display: flex;
+  justify-content: space-around; }
+
 .profilepic {
   margin-top: 30px;
-  margin-left: 20px;
   display: inline-block;
-  width: 250px; }
+  width: 26%; }
 
 .profilepic img {
-  width: 250px;
+  width: 100%;
   height: auto; }
+
+.info {
+  font-weight: 700; }
+
+.infowrapper {
+  font-family: 'Open Sans Condensed', sans-serif;
+  width: 60%; }
+  .infowrapper h1 {
+    margin-bottom: 50px; }
 
 input {
   display: block; }
@@ -35,10 +47,12 @@ input {
   font-size: 20pt; }
 
 input {
-  display: block; }
+  display: block;
+  margin-bottom: 10px; }
   input[name=submit] {
     width: 100px;
     margin-bottom: 10px;
+    margin-top: 15px;
     background-color: black;
     border: none;
     color: white;
@@ -53,6 +67,8 @@ input {
   margin-left: auto;
   margin-right: auto;
   margin-top: 50px; }
+  .loginwrapper form {
+    margin-top: 20px; }
 
 ul.tabs {
   margin: 0px;
@@ -70,11 +86,16 @@ ul.tabs {
 
 .tab-content {
   display: none;
-  min-height: 225px;
+  min-height: 325px;
   background: #ededed;
   padding: 15px; }
   .tab-content.current {
     display: inherit; }
+
+.loginflash {
+  background-color: #FBB0B0;
+  padding: 10px;
+  width: 200px; }
 
 #signInButton {
   margin-top: 10px;
@@ -116,7 +137,7 @@ img.grayscale {
   margin-right: 70px;
   flex-wrap: wrap; }
   .iconcontainer img {
-    height: 70px; }
+    height: 40px; }
 
 .aboutwrapper {
   font-family: 'Open Sans Condensed', sans-serif;
@@ -187,10 +208,21 @@ img.grayscale {
   padding: 15px; }
 
 .talent {
-  height: 150px;
+  height: 175px;
   margin-top: 15px;
   display: block;
   margin: auto; }
+
+.talentname {
+  font-family: 'Open Sans Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 12pt;
+  color: white;
+  position: relative;
+  bottom: 40px;
+  left: 10px;
+  line-height: 115%;
+  opacity: 0; }
 
 .talentbutton {
   width: 50px;
@@ -219,11 +251,15 @@ img.grayscale {
 .talentcontainer {
   font-family: 'Open Sans Condensed', sans-serif;
   width: 250px; }
+  .talentcontainer:hover .talentname {
+    opacity: 1; }
 
 .talentcontainer2 {
   font-family: 'Open Sans Condensed', sans-serif;
   margin-left: 8px;
   margin-right: 8px; }
+  .talentcontainer2:hover .talentname {
+    opacity: 1; }
 
 .talentbuttoncontainer {
   display: flex;
@@ -335,7 +371,7 @@ img.grayscale {
   padding: 20px; }
   .editprofileformwrapper label {
     display: inline-block;
-    margin-top: 15px; }
+    margin-top: 10px; }
   .editprofileformwrapper input {
     width: 300px; }
     .editprofileformwrapper input[name=submit] {
@@ -350,7 +386,25 @@ img.grayscale {
       cursor: pointer; }
     .editprofileformwrapper input[name=sag] {
       display: inline-block;
-      width: 10px; }
+      width: 60px; }
+    .editprofileformwrapper input[name=equity] {
+      display: inline-block;
+      width: 20px; }
+    .editprofileformwrapper input[name=height_feet] {
+      display: inline-block;
+      width: 25px; }
+    .editprofileformwrapper input[name=height_inches] {
+      display: inline-block;
+      width: 25px; }
+    .editprofileformwrapper input[name=age] {
+      display: inline-block;
+      width: 25px;
+      margin-right: 10px; }
+    .editprofileformwrapper input[name=zipcode] {
+      display: inline-block;
+      width: 80px; }
+    .editprofileformwrapper input[name=state] {
+      display: inline-block; }
   .editprofileformwrapper textarea {
     width: 500px;
     height: 150px; }

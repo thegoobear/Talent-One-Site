@@ -14,6 +14,7 @@
       <div class = 'talentcontainer2'>
       {% endif %}
         <a href="{{ url_for('profilepage', profile_id=pic.user.id) }}"><img class='talent' src= "{{ url_for('static', filename = 'img/uploads/' + pic.path) }}"></a>
+        <h3 class = 'talentname'>{{ pic.user.actor[0].firstname }} <br>{{ pic.user.actor[0].lastname }}</h3>
         {% if user and user.admin %}
         <div class = 'talentbuttoncontainer'>
         <a href="{{ url_for('editprofile', profile_id=pic.user.id, creditcount=0) }}" class='talentbutton'>EDIT</a>

@@ -32,9 +32,21 @@
 
       {% for message in form.age.errors %}
       <div class="flash">{{ message }}</div>
-    {% endfor %}
+      {% endfor %}
 
-      <form name='editprofile' method='POST' action="{{url_for('editprofile', profile_id=profile_id, creditcount=creditcount)}}">
+      {% for message in form.phone.errors %}
+      <div class="flash">{{ message }}</div>
+      {% endfor %}
+
+      {% for message in form.sag.errors %}
+      <div class="flash">{{ message }}</div>
+      {% endfor %}
+
+      {% for message in form.photo.errors %}
+      <div class="flash">{{ message }}</div>
+      {% endfor %}
+
+      <form name='editprofile' method='POST' enctype=multipart/form-data action="{{url_for('editprofile', profile_id=profile_id, creditcount=creditcount)}}">
 
           {{ form.hidden_tag() }}
 
@@ -47,18 +59,46 @@
           {{ form.age.label }}
           {{ form.age }}
 
+          Height:
+
+          {{ form.height_feet }}
+          {{ form.height_feet.label }}
+
+          {{ form.height_inches }}
+          {{ form.height_inches.label }}
+          <br>
+          {{ form.hair.label }}
+          {{ form.hair }}
+          <br>
           {{ form.email.label }}
           {{ form.email }}
 
+          {{ form.address1.label }}
+          {{ form.address1 }}
+
+          {{ form.address2.label }}
+          {{ form.address2 }}
+
+          {{ form.city.label }}
+          {{ form.city }}
+
+          {{ form.state.label }}
+          {{ form.state }}
+
+          {{ form.zipcode.label }}
+          {{ form.zipcode }}
+          <br>
           {{ form.phone.label }}
           {{ form.phone }}
 
           {{ form.sag.label }}
+          {{ form.sag }}
           <br>
-          {% for subfield in form.sag %}
-            {{ subfield }}
-            {{ subfield.label }}
-          {% endfor %}
+          {{ form.equity.label }}
+          {{ form.equity }}
+          <br>
+          {{ form.photo.label }}
+          {{ form.photo }}
 
           {{ form.submit }}
 

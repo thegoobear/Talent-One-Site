@@ -25,7 +25,7 @@ import json
 from flask import make_response
 import requests
 from os import walk
-from siteforms import ContactForm, SubmissionForm, EditUser
+from siteforms import ContactForm, SubmissionForm, EditUser, LoginForm, RegisterForm
 from flask_mail import Mail, Message
 
 #Pull in the client secret key for Google Sign In
@@ -212,22 +212,25 @@ def creditspage():
 @app.route('/login', methods = ['GET', 'POST'])
 def loginpage():
 
+    form = LoginForm()
+    form2 = RegisterForm()
+    
     if request.method == 'GET':
-
+        
         state = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
         login_session['state'] = state
                      
         if 'id' in login_session:        
             user = session.query(User).filter_by(id=login_session['id']).first()
             
-            return render_template("login.html", STATE = state, user=user)
+            return render_template("login.html", form=form, form2=form2, user=user, STATE=state)
 
-        return render_template("login.html", STATE = state)
+        return render_template("login.html", form=form, form2=form2, STATE=state )
 
-    if request.method == 'POST':
+    if request.method == 'POST' and form.validate():
 
-        email = request.form['email']
-        password = request.form['password']
+        email = form.email.data
+        password = form.password.data
         dbuser = session.query(User).filter_by(email = email).first()
 
         if dbuser:
@@ -236,33 +239,45 @@ def loginpage():
                 login_session['id'] = dbuser.id
                 login_session['email']=dbuser.email
                 return homepage()  
+        
+    state = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
+    login_session['state'] = state
+                     
+    return render_template("login.html", form=form, form2=form2, STATE=state )
 
 @app.route('/login/newuser', methods = ['POST'])
 def newuser():
-
-    state = request.form['STATE']
-
-    newuser = User(email = request.form['email'], admin = False)
-    newactor = Actor(user = newuser)
-    newphoto = Photo(user = newuser, path="nophoto.jpg")
-    newcredit = Credit(user = newuser)
-    newuser.hash_password(request.form['password'])
-
-    if session.query(User).filter_by(email = newuser.email).first() is not None:
-        abort(400)
-
-    if login_session['state'] != state:
-        abort(400)
-
-    session.add(newuser)
-    session.add(newactor)
-    session.add(newphoto)
-    session.add(newcredit)
-    session.commit()
     
-    user = session.query(User).filter_by(email=newuser.email).first()
+    form = RegisterForm(request.form)
+    
+    if request.method == 'POST' and form.validate():
+    
+        newuser = User(email = form.email.data, admin = False, paid = False, featured = False)
+        newactor = Actor(user = newuser)
+        newphoto = Photo(user = newuser, path="nophoto.jpg")
+        newcredit = Credit(user = newuser)
+        newuser.hash_password(request.form['password'])
 
-    return redirect(url_for('editprofile', profile_id=user.id, creditcount=1))
+        if session.query(User).filter_by(email = newuser.email).first() is not None and form.access.data == 'bella':
+            abort(400)
+
+        session.add(newuser)
+        session.add(newactor)
+        session.add(newphoto)
+        session.add(newcredit)
+        session.commit()
+    
+        user = session.query(User).filter_by(email=newuser.email).first()
+
+        return redirect(url_for('editprofile', profile_id=user.id, creditcount=1))
+    
+    form2 = form
+    form = LoginForm()
+    
+    state = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
+    login_session['state'] = state
+                     
+    return render_template("login.html", form=form, form2=form2, STATE=state )
 
 @app.route('/fbconnect', methods = ['POST'])
 def fbconnect():
@@ -547,24 +562,50 @@ def accountpage():
 def adminpage():
     return "admin"
 
-@app.route('/talent/profile/<int:profile_id>/edit/<int:creditcount>')
-def editprofile(profile_id, creditcount, methods = ['GET','POST']):
+@app.route('/talent/profile/<int:profile_id>/edit', methods = ['GET','POST'])
+def editprofile(profile_id):
     
     user = session.query(User).filter_by(id=profile_id).first()
     
-    form = EditUser(obj=user)
+    form = EditUser(obj=user.actor[0], phone=user.phone, email=user.email, \
+                    address1=user.address1, address2=user.address2,\
+                    city=user.city, state=user.state, zipcode=user.zipcode)
     
     if request.method == 'POST' and form.validate():
-        user.actor.firstname=form.firstname.data
-        user.actor.lastname=form.lastname.data
-        user.actor.age=form.age.data
-        user.actor.email=form.email.data
-        user.actor.sage=form.sag.data
-        user.phone=form.phone.data
         
-        session.commit()
+        user.actor[0].firstname=form.firstname.data
+        user.actor[0].lastname=form.lastname.data
+        user.actor[0].age=form.age.data
+        user.email=form.email.data
+        user.actor[0].sag=form.sag.data
+        user.actor[0].equity=form.equity.data
+        user.actor[0].height_feet=form.height_feet.data
+        user.actor[0].height_inches=form.height_inches.data
+        user.actor[0].hair=form.hair.data
+        user.phone=form.phone.data
+        user.address1=form.address1.data
+        user.address2=form.address1.data
+        user.city=form.city.data
+        user.state=form.state.data
+        user.zipcode=form.zipcode.data
+        
+        filename = photos.save(form.photo.data, folder = 'uploads')
+        tempuser = session.query(User).filter_by(id=user.id).first()
+        oldphoto = session.query(Photo).filter_by(user_id=user.id).first()
+        newphoto = Photo(path=filename[8::], user=tempuser)
+
+        session.add(newphoto)
+        session.delete(oldphoto)
+        
+        if os.path.isfile('static/img/uploads/' + oldphoto.path) and oldphoto.path != 'nophoto.jpg':
+            os.remove('static/img/uploads/' + oldphoto.path)
+        
+        session.commit()      
+
+        return redirect(url_for('profilepage', profile_id=profile_id))
     
-    return render_template('editprofile.html', form=form, profile_id=profile_id, creditcount=creditcount)
+    return render_template('editprofile.html', form=form, profile_id=profile_id, user=user)
+
 
 @app.route('/submissions', methods = ['GET', 'POST'])
 def submissionpage():

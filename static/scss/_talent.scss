@@ -5,10 +5,23 @@
 }
 
 .talent {
-  height: 150px;
+  height: 175px;
   margin-top: 15px;
   display: block;
   margin: auto;
+}
+
+.talentname {
+  //text-align: center;
+  font-family: 'Open Sans Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 12pt;
+  color: white;
+  position: relative;
+  bottom: 40px;
+  left: 10px;
+  line-height: 115%;
+  opacity: 0;
 }
 
 .talentbutton {
@@ -40,12 +53,18 @@
 .talentcontainer {
     font-family: 'Open Sans Condensed', sans-serif;
     width:250px;
+    &:hover .talentname {
+      opacity: 1;
+    }
 }
 
 .talentcontainer2 {
     font-family: 'Open Sans Condensed', sans-serif;
     margin-left:8px;
     margin-right: 8px;
+    &:hover .talentname {
+      opacity: 1;
+    }
 }
 
 .talentbuttoncontainer {

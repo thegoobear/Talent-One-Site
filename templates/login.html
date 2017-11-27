@@ -43,12 +43,19 @@
     	</ul>
 
     	<div id="tab-1" class="tab-content current">
+        {% for message in form.email.errors %}
+          <div class="loginflash">{{ message }}</div>
+        {% endfor %}
+        {% for message in form.password.errors %}
+          <div class="loginflash">{{ message }}</div>
+        {% endfor %}
         <form name="login" action="{{url_for('loginpage')}}" onsubmit="return validateForm()" method='post'>
-        Email:
-        <input type='text' size='40' name='email'>
-        Password:
-        <input type='text' size='40' name='password'>
-        <br><input type='submit' value='Login' name='submit'>
+        {{ form.hidden_tag() }}
+        {{ form.email.label }}
+        {{ form.email }}
+        {{ form.password.label }}
+        {{ form.password }}
+        {{ form.submit }}
         </form>
 
 <script>
@@ -148,15 +155,23 @@
       </div>
 
     	<div id="tab-2" class="tab-content">
+        {% for message in form2.email.errors %}
+          <div class="loginflash">{{ message }}</div>
+        {% endfor %}
+        {% for message in form2.password.errors %}
+          <div class="loginflash">{{ message }}</div>
+        {% endfor %}
         <form name="login2" action="{{url_for('newuser')}}" onsubmit="return validateForm2()" method='post'>
-        Email:
-        <input type='text' size='40' name='email'>
-        Password:
-        <input type='text' size='40' name='password'>
-        Confirm Password:
-        <input type='text' size='40' name='password2'>
-        <input name='STATE' type='hidden' value='{{STATE}}'>
-        <br><input type='submit' value='Create'>
+          {{ form2.hidden_tag() }}
+          {{ form2.email.label }}
+          {{ form2.email }}
+          {{ form2.password.label }}
+          {{ form2.password }}
+          {{ form2.confirm.label }}
+          {{ form2.confirm }}
+          {{ form2.access.label }}
+          {{ form2.access }}
+          {{ form2.submit }}
         </form>
     	</div>
 

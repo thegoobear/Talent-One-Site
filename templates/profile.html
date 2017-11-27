@@ -5,6 +5,9 @@
 {% block main %}
 <main>
 
+
+
+<div class="profilewrapper">
   <div class="profilepic">
     <img alt="headshot" src="{{ url_for('static', filename='img/uploads/' + photo.path ) }}">
     {% if user %}
@@ -13,8 +16,12 @@
   </div>
 
   <div class="infowrapper">
-
+    <h1 class="creditheader">{{ actor.firstname }} {{ actor.lastname }}</h1>
+    <div class="info">
+    Height: {{ actor.height_feet }}'{{ actor.height_inches }}"
+    </div>
   </div>
+</div>
 
 </main>
 {% endblock %}

@@ -43,9 +43,9 @@
           {% if user and not user.admin %}
           <li title="MY PROFILE"><a href="{{url_for ('profilepage', profile_id = user.id)}}">MY PROFILE</a></li>
           {% endif %}
-          {% if user and not user.admin %}
+          <!--{% if user and not user.admin %}
           <li title="MY ACCOUNT"><a href="{{url_for ('accountpage', profile_id = user.id)}}">MY ACCOUNT</a></li>
-          {% endif %}
+          {% endif %}-->
           {% if user %}
           <li title="LOG OUT"><a href="{{url_for ('gdisconnect')}}">LOG OUT</a></li>
           {% endif %}
